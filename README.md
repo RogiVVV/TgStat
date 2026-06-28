@@ -9,9 +9,9 @@
 
 1. Скачиваем нужную версию
 
-- [Windows](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.1/TgStat-Windows.zip)
-- [Linux](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.1/TgStat-Linux.tar.gz)
-- [macOS](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.1/TgStat-macOS.zip)
+- [Windows](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.2/TgStat-Windows.zip)
+- [Linux](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.2/TgStat-Linux.tar.gz)
+- [macOS](https://github.com/RogiVVV/TgStat/releases/download/v0.2-beta.2/TgStat-macOS.zip)
 
 2. Распаковываем
 
