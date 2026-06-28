@@ -1,4 +1,4 @@
 flet==0.85.3
 flet-map
-flet-desktop
+flet-desktop==0.85.3
 regex
