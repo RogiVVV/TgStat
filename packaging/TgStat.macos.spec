@@ -3,18 +3,27 @@
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_data_files
 
-project_dir = Path.cwd()
+SPEC_DIR = Path(SPECPATH).resolve() if 'SPECPATH' in globals() else Path(__file__).resolve().parent
+PROJECT_ROOT = SPEC_DIR.parent if (SPEC_DIR.parent / 'app.py').exists() else SPEC_DIR
 
-flet_datas = collect_data_files('flet')
-flet_map_datas = collect_data_files('flet_map')
+
+def safe_collect_data_files(package_name: str):
+    try:
+        return collect_data_files(package_name)
+    except Exception:
+        return []
+
+
+flet_datas = safe_collect_data_files('flet')
+flet_map_datas = safe_collect_data_files('flet_map')
 
 
 a = Analysis(
-    ['app.py'],
-    pathex=[str(project_dir)],
+    [str(PROJECT_ROOT / 'app.py')],
+    pathex=[str(PROJECT_ROOT)],
     binaries=[],
     datas=[
-        ('assets', 'assets'),
+        (str(PROJECT_ROOT / 'assets'), 'assets'),
         *flet_datas,
         *flet_map_datas,
     ],
@@ -61,6 +70,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='TgStat.app',
-    icon='assets/icon.icns',
+    icon=str(PROJECT_ROOT / 'assets' / 'icon.icns'),
     bundle_identifier='com.tgstat.app',
 )

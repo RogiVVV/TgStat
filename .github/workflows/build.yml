@@ -17,14 +17,16 @@ jobs:
         include:
           - name: Windows
             os: windows-latest
-            spec: TgStat.windows.spec
-            artifact_name: packaging/TgStat-Windows
+            spec: packaging/TgStat.windows.spec
+            artifact_name: TgStat-Windows
             artifact_path: dist/TgStat
+
           - name: Linux
             os: ubuntu-latest
             spec: packaging/TgStat.linux.spec
             artifact_name: TgStat-Linux
             artifact_path: dist/TgStat
+
           - name: macOS
             os: macos-latest
             spec: packaging/TgStat.macos.spec
@@ -50,11 +52,11 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
 
       - name: Build application
-        run: pyinstaller ${{ matrix.spec }} --noconfirm --clean
+        run: python -m PyInstaller --noconfirm --clean ${{ matrix.spec }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
