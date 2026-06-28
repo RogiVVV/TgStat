@@ -2420,4 +2420,5 @@ async def main(page: ft.Page) -> None:
     show_start_screen()
 
 
+platform_utils.configure_flet_view_path()
 ft.run(main)
