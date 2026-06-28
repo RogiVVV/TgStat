@@ -30,6 +30,7 @@ a = Analysis(
     hiddenimports=[
         'flet',
         'flet_map',
+        'flet_desktop',
         'regex',
         'main',
         'platform_utils',
