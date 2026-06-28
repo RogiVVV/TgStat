@@ -9,11 +9,14 @@
 
 1. Скачиваем нужную версию
 
-Тут будут ссылки, когда я их сделаю
-
+- [Windows](https://github.com/RogiVVV/TgStat/releases/latest/download/TgStat-Windows.zip)
+- [Linux](https://github.com/RogiVVV/TgStat/releases/latest/download/TgStat-Linux.tar.gz)
+- [macOS](https://github.com/RogiVVV/TgStat/releases/latest/download/TgStat-macOS.zip)
 2. Распаковываем
 
 ![img1.png](readme_images/img1.png)
+
+Вот наше приложение
 
 #### 2) Подготовка чатов к анализу
 
@@ -46,7 +49,7 @@
 
 ---
 
-При обнаружении ошибок, багов, опечаток и тп. пишите на почту TgStatDev@yandex.ru 
+При обнаружении любого рода ошибок, багов, опечаток и тп. пишите на почту TgStatDev@yandex.ru 
 
 ---
 
