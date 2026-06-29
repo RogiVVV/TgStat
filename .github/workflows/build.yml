@@ -33,7 +33,6 @@ jobs:
             artifact_name: TgStat-Linux
             icon: assets/icon.png
             add_data: assets:assets
-            pack_mode: --onedir
             dist_path: dist/TgStat
 
           - name: macOS
@@ -42,7 +41,6 @@ jobs:
             artifact_name: TgStat-macOS
             icon: assets/icon.icns
             add_data: assets:assets
-            pack_mode: --onefile
             dist_path: dist/TgStat.app
 
     steps:
@@ -70,9 +68,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller flet==0.85.3 flet-cli==0.85.3 flet-map regex
 
-      - name: Build with Flet pack
+      - name: Build Windows/Linux with Flet pack onedir
+        if: matrix.name != 'macOS'
         run: |
-          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}" ${{ matrix.pack_mode }}
+          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}" --onedir
+          
+      - name: Build macOS with Flet pack default
+        if: matrix.name == 'macOS'
+        run: |
+          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}"
 
       - name: Archive Windows
         if: matrix.name == 'Windows'
