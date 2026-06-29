@@ -24,6 +24,7 @@ jobs:
             artifact_name: TgStat-Windows
             icon: assets/icon.ico
             add_data: assets;assets
+            pack_mode: --onedir
             dist_path: dist/TgStat
 
           - name: Linux
@@ -32,6 +33,7 @@ jobs:
             artifact_name: TgStat-Linux
             icon: assets/icon.png
             add_data: assets:assets
+            pack_mode: --onedir
             dist_path: dist/TgStat
 
           - name: macOS
@@ -40,6 +42,7 @@ jobs:
             artifact_name: TgStat-macOS
             icon: assets/icon.icns
             add_data: assets:assets
+            pack_mode: --onefile
             dist_path: dist/TgStat.app
 
     steps:
@@ -69,7 +72,7 @@ jobs:
 
       - name: Build with Flet pack
         run: |
-          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}" --onedir
+          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}" ${{ matrix.pack_mode }}
 
       - name: Archive Windows
         if: matrix.name == 'Windows'
