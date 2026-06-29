@@ -69,7 +69,7 @@ jobs:
 
       - name: Build with Flet pack
         run: |
-          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}"
+          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}" --onedir
 
       - name: Archive Windows
         if: matrix.name == 'Windows'
