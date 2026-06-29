@@ -159,20 +159,3 @@ def open_file(path: Path | str) -> None:
         open_folder(file_path.parent)
     except Exception:
         pass
-
-
-def configure_flet_view_path() -> None:
-    """
-    Указывает Flet путь к локальному desktop client внутри PyInstaller-сборки.
-    """
-    if not is_frozen_app():
-        return
-
-    client_path = Path(resource_path('flet_client'))
-
-    if client_path.exists():
-        os.environ['FLET_VIEW_PATH'] = str(client_path)
-
-
-def is_frozen_app() -> bool:
-    return hasattr(sys, '_MEIPASS')
