@@ -23,6 +23,7 @@ jobs:
             archive_name: TgStat-Windows.zip
             artifact_name: TgStat-Windows
             icon: assets/icon.ico
+            add_data: assets;assets
             dist_path: dist/TgStat
 
           - name: Linux
@@ -30,6 +31,7 @@ jobs:
             archive_name: TgStat-Linux.zip
             artifact_name: TgStat-Linux
             icon: assets/icon.png
+            add_data: assets:assets
             dist_path: dist/TgStat
 
           - name: macOS
@@ -37,6 +39,7 @@ jobs:
             archive_name: TgStat-macOS.zip
             artifact_name: TgStat-macOS
             icon: assets/icon.icns
+            add_data: assets:assets
             dist_path: dist/TgStat.app
 
     steps:
@@ -66,18 +69,18 @@ jobs:
 
       - name: Build with Flet pack
         run: |
-          python -m flet pack app.py --name TgStat --icon ${{ matrix.icon }} --add-data assets:assets
+          flet pack app.py --name TgStat --icon "${{ matrix.icon }}" --add-data "${{ matrix.add_data }}"
 
       - name: Archive Windows
         if: matrix.name == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path ${{ matrix.dist_path }} -DestinationPath ${{ matrix.archive_name }}
+          Compress-Archive -Path "${{ matrix.dist_path }}" -DestinationPath "${{ matrix.archive_name }}"
 
       - name: Archive Unix
         if: matrix.name != 'Windows'
         run: |
-          zip -r ${{ matrix.archive_name }} ${{ matrix.dist_path }}
+          zip -r "${{ matrix.archive_name }}" "${{ matrix.dist_path }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
