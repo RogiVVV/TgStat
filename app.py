@@ -16,6 +16,8 @@ import main as chat_backend
 import platform_utils
 import updater
 
+VERSION = (Path(__file__).parent / 'assets' / 'version.txt').read_text(encoding='utf-8').strip()
+
 TOP_LIMIT = 10
 
 STAT_GROUPS = [
@@ -130,7 +132,6 @@ RESULT_CARD_BG_3 = '#374052'
 LINK_COLOR = '#5C9CCF'
 SAVED_ANALYZES_DIR = Path(__file__).resolve().parent / 'saved_analyzes'
 ABOUT_URL = 'https://github.com/RogiVVV/TgStat'
-APP_VERSION = '0.2-beta.4'
 
 
 def make_page_shell(content: ft.Control, max_width: int = 1180) -> ft.Container:
@@ -2020,7 +2021,7 @@ async def main(page: ft.Page) -> None:
         :param show_no_update: показывать ли уведомление, если обновлений нет
         :return: None
         """
-        update_info = await asyncio.to_thread(updater.check_for_update, APP_VERSION)
+        update_info = await asyncio.to_thread(updater.check_for_update, VERSION)
 
         if update_info:
             show_update_dialog(update_info)
@@ -2146,6 +2147,7 @@ async def main(page: ft.Page) -> None:
             content=ft.Column(
                 controls=[
                     ft.Text('TgStat — приложение для анализа чатов, каналов и групп Telegram'),
+                    ft.Text(f'Версия: {VERSION}'),
                     ft.Text(
                         spans=[
                             ft.TextSpan(
