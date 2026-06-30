@@ -15,8 +15,7 @@ except ImportError:
 import main as chat_backend
 import platform_utils
 import updater
-
-VERSION = (Path(__file__).parent / 'assets' / 'version.txt').read_text(encoding='utf-8').strip()
+from version import VERSION
 
 TOP_LIMIT = 10
 
@@ -1987,9 +1986,8 @@ async def main(page: ft.Page) -> None:
                 controls=[
                     ft.Text(f'Текущая версия: {update_info.current_version}'),
                     ft.Text(f'Новая версия: {update_info.latest_version}', weight=ft.FontWeight.BOLD),
-                    ft.Text(f'Архив: {update_info.asset_name or "не найден для текущей ОС"}'),
                     ft.Text(
-                        'Автоустановка доступна в собранной версии приложения.'
+                        ''
                         if updater.is_auto_update_supported()
                         else 'Вы запустили исходный код, поэтому доступна только ручная загрузка релиза.',
                         color=TEXT_MUTED,
