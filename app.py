@@ -14,6 +14,7 @@ except ImportError:
 
 import main as chat_backend
 import platform_utils
+import updater
 
 TOP_LIMIT = 10
 
@@ -129,7 +130,7 @@ RESULT_CARD_BG_3 = '#374052'
 LINK_COLOR = '#5C9CCF'
 SAVED_ANALYZES_DIR = Path(__file__).resolve().parent / 'saved_analyzes'
 ABOUT_URL = 'https://github.com/RogiVVV/TgStat'
-
+APP_VERSION = '0.2-beta.4'
 
 
 def make_page_shell(content: ft.Control, max_width: int = 1180) -> ft.Container:
@@ -299,7 +300,6 @@ def read_analysis_from_json(path: str | Path) -> dict:
     return stats
 
 
-
 def read_chat_meta(chat_path: str) -> dict[str, str]:
     """
     Читает название и тип Telegram-чата из result.json
@@ -332,7 +332,6 @@ def chat_type_label(chat_type: str | None) -> str:
         'saved_messages': 'избранного',
     }
     return labels.get(str(chat_type), 'чата/канала/группы')
-
 
 
 def user_name(user_id: str | None, users: dict) -> str:
@@ -531,7 +530,6 @@ def user_details_text(details: list[tuple[Any, int]], users: dict, limit: int | 
         f'{user_name(user_id, users)}: {count}'
         for user_id, count in visible_details
     )
-
 
 
 def make_show_more_button(
@@ -1921,6 +1919,112 @@ async def main(page: ft.Page) -> None:
             page.overlay.remove(wrapper)
             page.update()
 
+    async def open_url(url: str) -> None:
+        """
+        Открывает ссылку во внешнем браузере.
+        :param url: адрес страницы
+        :return: None
+        """
+        await ft.UrlLauncher().launch_url(url)
+
+    def trim_release_notes(text: str, limit: int = 700) -> str:
+        """
+        Сокращает описание релиза для диалогового окна.
+        :param text: полное описание релиза
+        :param limit: максимальная длина текста
+        :return: сокращённое описание
+        """
+        cleaned = text.strip()
+        if not cleaned:
+            return 'Описание релиза не указано.'
+        if len(cleaned) <= limit:
+            return cleaned
+        return f'{cleaned[:limit - 1]}…'
+
+    def show_update_dialog(update_info: updater.UpdateInfo) -> None:
+        """
+        Показывает диалог с предложением установить новую версию.
+        :param update_info: информация об обновлении
+        :return: None
+        """
+
+        async def install_update(_: ft.ControlEvent) -> None:
+            update_dialog.open = False
+            show_loading_screen('Скачиваем и устанавливаем обновление...')
+
+            try:
+                prepared_update = await asyncio.to_thread(updater.prepare_update, update_info)
+                await asyncio.to_thread(updater.run_prepared_update, prepared_update)
+                await page.window.close()
+            except Exception as error:
+                show_start_screen()
+                await show_top_notification(f'Ошибка обновления: {error}', duration=4, bgcolor=WARNING)
+                return
+
+            await show_top_notification('Обновление скачано. TgStat сейчас перезапустится.', duration=1.2)
+            updater.run_prepared_update(prepared_update)
+
+        async def open_release(_: ft.ControlEvent) -> None:
+            await open_url(update_info.page_url)
+
+        def close_dialog() -> None:
+            update_dialog.open = False
+            page.update()
+
+        actions = [
+            ft.Button('Позже', on_click=lambda event: close_dialog()),
+            ft.Button('Открыть страницу релиза', on_click=open_release),
+        ]
+
+        if update_info.asset_url and updater.is_auto_update_supported():
+            actions.append(make_primary_button('Обновить сейчас', on_click=install_update))
+
+        update_dialog = ft.AlertDialog(
+            modal=True,
+            title=ft.Text('Доступно обновление TgStat'),
+            content=ft.Column(
+                controls=[
+                    ft.Text(f'Текущая версия: {update_info.current_version}'),
+                    ft.Text(f'Новая версия: {update_info.latest_version}', weight=ft.FontWeight.BOLD),
+                    ft.Text(f'Архив: {update_info.asset_name or "не найден для текущей ОС"}'),
+                    ft.Text(
+                        'Автоустановка доступна в собранной версии приложения.'
+                        if updater.is_auto_update_supported()
+                        else 'Вы запустили исходный код, поэтому доступна только ручная загрузка релиза.',
+                        color=TEXT_MUTED,
+                    ),
+                    ft.Container(
+                        content=ft.Text(trim_release_notes(update_info.release_notes), selectable=True),
+                        padding=12,
+                        border_radius=12,
+                        bgcolor=CARD_BG_2,
+                    ),
+                ],
+                tight=True,
+                spacing=8,
+                scroll=ft.ScrollMode.AUTO,
+            ),
+            actions=actions,
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+
+        if update_dialog not in page.overlay:
+            page.overlay.append(update_dialog)
+
+        update_dialog.open = True
+        page.update()
+
+    async def check_updates(show_no_update: bool = False) -> None:
+        """
+        Проверяет наличие обновлений и показывает диалог при необходимости.
+        :param show_no_update: показывать ли уведомление, если обновлений нет
+        :return: None
+        """
+        update_info = await asyncio.to_thread(updater.check_for_update, APP_VERSION)
+
+        if update_info:
+            show_update_dialog(update_info)
+
     def selected_statistics() -> list[str]:
         """
         Возвращает выбранные пользователем статистики
@@ -2418,6 +2522,7 @@ async def main(page: ft.Page) -> None:
         )
 
     show_start_screen()
+    await check_updates()
 
 
 ft.run(main)

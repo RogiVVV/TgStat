@@ -159,3 +159,11 @@ def open_file(path: Path | str) -> None:
         open_folder(file_path.parent)
     except Exception:
         pass
+
+
+def is_frozen_app() -> bool:
+    """
+    Проверяет, запущено ли приложение из PyInstaller-сборки.
+    :return: True, если приложение запущено из сборки
+    """
+    return hasattr(sys, '_MEIPASS')
