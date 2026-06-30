@@ -227,13 +227,18 @@ def make_windows_update_script(update_root: Path, install_folder: Path, executab
     """
     script_path = update_root.parent / 'apply_update.ps1'
     script = f'''
-Start-Sleep -Seconds 2
-$Source = {json.dumps(str(update_root))}
-$Target = {json.dumps(str(install_folder))}
-$Exe = {json.dumps(str(executable_path))}
-Copy-Item -Path (Join-Path $Source '*') -Destination $Target -Recurse -Force
-Start-Process -FilePath $Exe
-'''.strip()
+    Start-Sleep -Seconds 2
+    $Source = {json.dumps(str(update_root))}
+    $Target = {json.dumps(str(install_folder))}
+    $Exe = {json.dumps(str(executable_path))}
+
+    robocopy $Source $Target /MIR /XD saved_analyzes
+    if ($LASTEXITCODE -lt 8) {{
+        Start-Process -FilePath $Exe
+    }} else {{
+        exit $LASTEXITCODE
+    }}
+    '''.strip()
     script_path.write_text(script, encoding='utf-8')
     return script_path
 
@@ -248,11 +253,18 @@ def make_unix_update_script(update_root: Path, install_folder: Path, executable_
     """
     script_path = update_root.parent / 'apply_update.sh'
     script = f'''#!/bin/sh
-            sleep 2
-            cp -R {sh_quote(str(update_root))}/. {sh_quote(str(install_folder))}/
-            chmod +x {sh_quote(str(executable_path))} 2>/dev/null || true
-            {sh_quote(str(executable_path))} >/dev/null 2>&1 &
-            '''
+    sleep 2
+
+    if command -v rsync >/dev/null 2>&1; then
+        rsync -a --delete --exclude 'saved_analyzes' {sh_quote(str(update_root))}/ {sh_quote(str(install_folder))}/
+    else
+        find {sh_quote(str(install_folder))} -mindepth 1 -maxdepth 1 ! -name 'saved_analyzes' -exec rm -rf {{}} +
+        cp -R {sh_quote(str(update_root))}/. {sh_quote(str(install_folder))}/
+    fi
+
+    chmod +x {sh_quote(str(executable_path))} 2>/dev/null || true
+    {sh_quote(str(executable_path))} >/dev/null 2>&1 &
+    '''
     script_path.write_text(script, encoding='utf-8')
     script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
     return script_path
